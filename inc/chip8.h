@@ -16,7 +16,8 @@ namespace CodexMachina
 
     unsigned short _I;
     unsigned char _delayTimer;
-    std::array<bool, X * Y> _display;
+    std::array<unsigned char, X * Y> _display;
+    std::array<unsigned char, 16> _keys;
     std::array<unsigned char, MEMORY_SIZE> _memory;
     unsigned char _soundTimer;
     unsigned char _sp;

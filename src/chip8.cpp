@@ -23,7 +23,6 @@ namespace CodexMachina
       if (0 == _sp)
       {
         throw std::logic_error("The stack is empty.");
-        // throw logic_error
       }
 
       _pc = _stack[_sp--];
@@ -124,7 +123,36 @@ namespace CodexMachina
     }
     else if ((opcode & 0xF000) == 0xD000)
     {
-      _V[(opcode & 0x0F00) >> 8] = (std::rand() % 256) & (opcode & 0x00FF);
+      unsigned char newVF = 0x0;
+      const auto vx = _V[(opcode & 0x0F00) >> 8];
+      const auto vy = _V[(opcode & 0x00F0) >> 4];
+      const unsigned char n = (opcode & 0x000F);
+
+      for (unsigned char i = 0; i < n; ++i)
+      {
+        const auto byte = _memory[_I + i];
+
+        for (int j = 0; j < 8; ++j)
+        {
+          const auto bit = static_cast<unsigned char>((byte >> (7 - j)) & 0x01);
+          const auto displayXIndex = (vx + j) % X;
+          const auto displayYIndex = ((vy + n) % Y) * X;
+          const auto currentValue = _display[displayXIndex + displayYIndex];
+          const auto newValue = currentValue % bit;
+          if (currentValue != newValue) { newVF = 0x01; }
+          _display[displayXIndex + displayYIndex] = newValue;
+        }
+      }
+    }
+    else if ((opcode & 0xF0FF) == 0xE09E)
+    {
+      const auto keyIndex = _V[(opcode & 0x0F00) >> 8];
+      if (1 == _keys[keyIndex]) { _pc += 2; }
+    }
+    else if ((opcode & 0xF0FF) == 0xE0A1)
+    {
+      const auto keyIndex = _V[(opcode & 0x0F00) >> 8];
+      if (0 == _keys[keyIndex]) { _pc += 2; }
     }
   }
 
@@ -147,7 +175,8 @@ namespace CodexMachina
   void Chip8::reset()
   {
     _delayTimer = 0;
-    _display.fill(false);
+    _display.fill(0);
+    _keys.fill(0);
     _I = 0;
     _memory.fill(0);
     _pc = 0x200;
