@@ -1,4 +1,5 @@
 #include "chip8.h"
+#include <cstdlib>
 #include <stdexcept>
 #include <sstream>
 
@@ -21,6 +22,7 @@ namespace CodexMachina
     {
       if (0 == _sp)
       {
+        throw std::logic_error("The stack is empty.");
         // throw logic_error
       }
 
@@ -80,16 +82,49 @@ namespace CodexMachina
     }
     else if ((opcode & 0xF00F) == 0x8005)
     {
-      auto vx = static_cast<unsigned short>(_V[(opcode & 0x0F00) >> 8]);
-      auto vy = static_cast<unsigned short>(_V[(opcode & 0x00F0) >> 4]);
+      auto vx = _V[(opcode & 0x0F00) >> 8];
+      auto vy = _V[(opcode & 0x00F0) >> 4];
       (vy > vx) ? _V[0xF] = 0 : _V[0xF] = 1;
       _V[(opcode & 0x0F00) >> 8] -= vy;
     }
     else if ((opcode & 0xF00F) == 0x8006)
     {
-      auto vx = static_cast<unsigned short>(_V[(opcode & 0x0F00) >> 8]);
-      _V[0xF] = (vx & 0x0001);
+      auto vx = _V[(opcode & 0x0F00) >> 8];
+      _V[0xF] = (vx & 0x01);
       _V[(opcode & 0x0F00) >> 8] = vx >> 1;
+    }
+    else if ((opcode & 0xF00F) == 0x8007)
+    {
+      auto vx = _V[(opcode & 0x0F00) >> 8];
+      auto vy = _V[(opcode & 0x00F0) >> 4];
+      (vx > vy) ? _V[0xF] = 0 : _V[0xF] = 1;
+      _V[(opcode & 0x0F00) >> 8] = vy - vx;
+    }
+    else if ((opcode & 0xF00F) == 0x800E)
+    {
+      auto vx = _V[(opcode & 0x0F00) >> 8];
+      _V[0xF] = (vx & 0x80) >> 7;
+      _V[(opcode & 0x0F00) >> 8] = vx << 1;
+    }
+    else if ((opcode & 0xF00F) == 0x9000)
+    {
+      if (_V[(opcode & 0x0F00) >> 8] != _V[(opcode & 0x00F0) >> 4]) { _pc += 2; }
+    }
+    else if ((opcode & 0xF000) == 0xA000)
+    {
+      _I = (opcode & 0x0FFF);
+    }
+    else if ((opcode & 0xF000) == 0xB000)
+    {
+      _pc = _V[0] + (opcode & 0x0FFF);
+    }
+    else if ((opcode & 0xF000) == 0xC000)
+    {
+      _V[(opcode & 0x0F00) >> 8] = (std::rand() % 256) & (opcode & 0x00FF);
+    }
+    else if ((opcode & 0xF000) == 0xD000)
+    {
+      _V[(opcode & 0x0F00) >> 8] = (std::rand() % 256) & (opcode & 0x00FF);
     }
   }
 
@@ -112,6 +147,7 @@ namespace CodexMachina
   void Chip8::reset()
   {
     _delayTimer = 0;
+    _display.fill(false);
     _I = 0;
     _memory.fill(0);
     _pc = 0x200;

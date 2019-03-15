@@ -11,9 +11,12 @@ namespace CodexMachina
     void reset();
   private:
     constexpr static size_t MEMORY_SIZE{ 0x1000 };
+    constexpr static size_t X{ 64 };
+    constexpr static size_t Y{ 32 };
 
     unsigned short _I;
     unsigned char _delayTimer;
+    std::array<bool, X * Y> _display;
     std::array<unsigned char, MEMORY_SIZE> _memory;
     unsigned char _soundTimer;
     unsigned char _sp;
