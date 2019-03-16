@@ -1,6 +1,5 @@
 #include "chip8.h"
 #include <cstdlib>
-#include <stdexcept>
 #include <sstream>
 
 namespace CodexMachina
@@ -8,13 +7,14 @@ namespace CodexMachina
   void Chip8::emulateCycle()
   {
     if (_blocked) return;
+    _makeSound = false;
     unsigned short opcode = _memory[_pc++] << 8;
     opcode |= _memory[_pc++];
 
     if ((opcode & 0xF000) == 0x0000)
     {
-      // TODO: Calls RCA 1802 program at address (opcode & 0x0FFF)
-      throw std::logic_error("Calling RCA 1802 program is not implemented.");
+      // Calls RCA 1802 program at address (opcode & 0x0FFF)
+      // Intentionally ignored
     }
     else if (opcode == 0x00E0)
     {
@@ -22,7 +22,7 @@ namespace CodexMachina
     }
     else if (opcode == 0x00EE)
     {
-      if (0 == _sp) { throw std::logic_error("The stack is empty."); }
+      if (0 == _sp) { throw std::logic_error{ "The stack is empty." }; }
       _pc = _stack[_sp--];
     }
     else if ((opcode & 0xF000) == 0x1000)
@@ -31,7 +31,7 @@ namespace CodexMachina
     }
     else if ((opcode & 0xF000) == 0x2000)
     {
-      if (_stack.size() == _sp) { throw std::logic_error("The stack is full."); }
+      if (_stack.size() == _sp) { throw std::logic_error{ "The stack is full." }; }
       _stack[_sp++] = _pc;
       _pc = opcode & 0x0FFF;
     }
@@ -208,109 +208,120 @@ namespace CodexMachina
       const auto vIndex = (opcode & 0x0F00) >> 8;
       for (size_t i = 0; i <= vIndex; ++i) { _V[i] = _memory[_I + i]; }
     }
+    else
+    {
+      std::stringstream ss{ std::ios::out };
+      ss << "Invalid opcode: " << std::hex << std::showbase << opcode;
+      throw std::logic_error{ ss.str() };
+    }
 
     if (_delayTimer > 0) { --_delayTimer; }
-    if (_soundTimer > 0) { --_soundTimer; }
+
+    if (_soundTimer > 0)
+    {
+      --_soundTimer;
+      if (0 == _soundTimer) { _makeSound = true; }
+    }
   }
 
-  void Chip8::loadFont()
+  void Chip8::loadFont(const unsigned short offset)
   {
-    _spriteAddrs[0] = 0;
-    _memory[0] = 0xF0;
-    _memory[1] = 0x90;
-    _memory[2] = 0x90;
-    _memory[3] = 0x90;
-    _memory[4] = 0xF0;
-    _spriteAddrs[1] = 5;
-    _memory[5] = 0x20;
-    _memory[6] = 0x60;
-    _memory[7] = 0x20;
-    _memory[8] = 0x20;
-    _memory[9] = 0x70;
-    _spriteAddrs[2] = 10;
-    _memory[10] = 0xF0;
-    _memory[11] = 0x10;
-    _memory[12] = 0xF0;
-    _memory[13] = 0x80;
-    _memory[14] = 0xF0;
-    _spriteAddrs[3] = 15;
-    _memory[15] = 0xF0;
-    _memory[16] = 0x10;
-    _memory[17] = 0xF0;
-    _memory[18] = 0x10;
-    _memory[19] = 0xF0;
-    _spriteAddrs[4] = 20;
-    _memory[20] = 0x90;
-    _memory[21] = 0x90;
-    _memory[22] = 0xF0;
-    _memory[23] = 0x10;
-    _memory[24] = 0xF0;
-    _spriteAddrs[5] = 25;
-    _memory[25] = 0xF0;
-    _memory[26] = 0x80;
-    _memory[27] = 0xF0;
-    _memory[28] = 0x10;
-    _memory[29] = 0xF0;
-    _spriteAddrs[6] = 30;
-    _memory[30] = 0xF0;
-    _memory[31] = 0x80;
-    _memory[32] = 0xF0;
-    _memory[33] = 0x90;
-    _memory[34] = 0xF0;
-    _spriteAddrs[7] = 35;
-    _memory[35] = 0xF0;
-    _memory[36] = 0x10;
-    _memory[37] = 0x20;
-    _memory[38] = 0x40;
-    _memory[39] = 0x40;
-    _spriteAddrs[8] = 40;
-    _memory[40] = 0xF0;
-    _memory[41] = 0x90;
-    _memory[42] = 0xF0;
-    _memory[43] = 0x90;
-    _memory[44] = 0xF0;
-    _spriteAddrs[9] = 45;
-    _memory[45] = 0xF0;
-    _memory[46] = 0x90;
-    _memory[47] = 0xF0;
-    _memory[48] = 0x10;
-    _memory[49] = 0xF0;
-    _spriteAddrs[10] = 50;
-    _memory[50] = 0xF0;
-    _memory[51] = 0x90;
-    _memory[52] = 0xF0;
-    _memory[53] = 0x90;
-    _memory[54] = 0x90;
-    _spriteAddrs[11] = 55;
-    _memory[55] = 0xE0;
-    _memory[56] = 0x90;
-    _memory[57] = 0xE0;
-    _memory[58] = 0x90;
-    _memory[59] = 0xE0;
-    _spriteAddrs[12] = 60;
-    _memory[60] = 0xF0;
-    _memory[61] = 0x80;
-    _memory[62] = 0x80;
-    _memory[63] = 0x80;
-    _memory[64] = 0xF0;
-    _spriteAddrs[13] = 65;
-    _memory[65] = 0xE0;
-    _memory[66] = 0x90;
-    _memory[67] = 0x90;
-    _memory[68] = 0x90;
-    _memory[69] = 0xE0;
-    _spriteAddrs[14] = 70;
-    _memory[70] = 0xF0;
-    _memory[71] = 0x80;
-    _memory[72] = 0xF0;
-    _memory[73] = 0x80;
-    _memory[74] = 0xF0;
-    _spriteAddrs[15] = 75;
-    _memory[75] = 0xF0;
-    _memory[76] = 0x80;
-    _memory[77] = 0xF0;
-    _memory[78] = 0x80;
-    _memory[79] = 0x80;
+    _spriteAddrs[0] = offset + 0;
+    _memory[offset + 0] = 0xF0;
+    _memory[offset + 1] = 0x90;
+    _memory[offset + 2] = 0x90;
+    _memory[offset + 3] = 0x90;
+    _memory[offset + 4] = 0xF0;
+    _spriteAddrs[1] = offset + 5;
+    _memory[offset + 5] = 0x20;
+    _memory[offset + 6] = 0x60;
+    _memory[offset + 7] = 0x20;
+    _memory[offset + 8] = 0x20;
+    _memory[offset + 9] = 0x70;
+    _spriteAddrs[2] = offset + 10;
+    _memory[offset + 10] = 0xF0;
+    _memory[offset + 11] = 0x10;
+    _memory[offset + 12] = 0xF0;
+    _memory[offset + 13] = 0x80;
+    _memory[offset + 14] = 0xF0;
+    _spriteAddrs[3] = offset + 15;
+    _memory[offset + 15] = 0xF0;
+    _memory[offset + 16] = 0x10;
+    _memory[offset + 17] = 0xF0;
+    _memory[offset + 18] = 0x10;
+    _memory[offset + 19] = 0xF0;
+    _spriteAddrs[4] = offset + 20;
+    _memory[offset + 20] = 0x90;
+    _memory[offset + 21] = 0x90;
+    _memory[offset + 22] = 0xF0;
+    _memory[offset + 23] = 0x10;
+    _memory[offset + 24] = 0xF0;
+    _spriteAddrs[5] = offset + 25;
+    _memory[offset + 25] = 0xF0;
+    _memory[offset + 26] = 0x80;
+    _memory[offset + 27] = 0xF0;
+    _memory[offset + 28] = 0x10;
+    _memory[offset + 29] = 0xF0;
+    _spriteAddrs[6] = offset + 30;
+    _memory[offset + 30] = 0xF0;
+    _memory[offset + 31] = 0x80;
+    _memory[offset + 32] = 0xF0;
+    _memory[offset + 33] = 0x90;
+    _memory[offset + 34] = 0xF0;
+    _spriteAddrs[7] = offset + 35;
+    _memory[offset + 35] = 0xF0;
+    _memory[offset + 36] = 0x10;
+    _memory[offset + 37] = 0x20;
+    _memory[offset + 38] = 0x40;
+    _memory[offset + 39] = 0x40;
+    _spriteAddrs[8] = offset + 40;
+    _memory[offset + 40] = 0xF0;
+    _memory[offset + 41] = 0x90;
+    _memory[offset + 42] = 0xF0;
+    _memory[offset + 43] = 0x90;
+    _memory[offset + 44] = 0xF0;
+    _spriteAddrs[9] = offset + 45;
+    _memory[offset + 45] = 0xF0;
+    _memory[offset + 46] = 0x90;
+    _memory[offset + 47] = 0xF0;
+    _memory[offset + 48] = 0x10;
+    _memory[offset + 49] = 0xF0;
+    _spriteAddrs[10] = offset + 50;
+    _memory[offset + 50] = 0xF0;
+    _memory[offset + 51] = 0x90;
+    _memory[offset + 52] = 0xF0;
+    _memory[offset + 53] = 0x90;
+    _memory[offset + 54] = 0x90;
+    _spriteAddrs[11] = offset + 55;
+    _memory[offset + 55] = 0xE0;
+    _memory[offset + 56] = 0x90;
+    _memory[offset + 57] = 0xE0;
+    _memory[offset + 58] = 0x90;
+    _memory[offset + 59] = 0xE0;
+    _spriteAddrs[12] = offset + 60;
+    _memory[offset + 60] = 0xF0;
+    _memory[offset + 61] = 0x80;
+    _memory[offset + 62] = 0x80;
+    _memory[offset + 63] = 0x80;
+    _memory[offset + 64] = 0xF0;
+    _spriteAddrs[13] = offset + 65;
+    _memory[offset + 65] = 0xE0;
+    _memory[offset + 66] = 0x90;
+    _memory[offset + 67] = 0x90;
+    _memory[offset + 68] = 0x90;
+    _memory[offset + 69] = 0xE0;
+    _spriteAddrs[14] = offset + 70;
+    _memory[offset + 70] = 0xF0;
+    _memory[offset + 71] = 0x80;
+    _memory[offset + 72] = 0xF0;
+    _memory[offset + 73] = 0x80;
+    _memory[offset + 74] = 0xF0;
+    _spriteAddrs[15] = offset + 75;
+    _memory[offset + 75] = 0xF0;
+    _memory[offset + 76] = 0x80;
+    _memory[offset + 77] = 0xF0;
+    _memory[offset + 78] = 0x80;
+    _memory[offset + 79] = 0x80;
   }
 
   void Chip8::loadMemory(const std::vector<unsigned char> data, unsigned short offset)
@@ -320,7 +331,7 @@ namespace CodexMachina
       std::stringstream ss{ std::ios::out };
       ss << std::hex << std::showbase << offset << " is greater than " <<
         std::hex << std::showbase << MEMORY_SIZE;
-      throw std::invalid_argument(ss.str());
+      throw std::invalid_argument{ ss.str() };
     }
 
     for (size_t i = 0; i < data.size(); ++i)
@@ -336,6 +347,7 @@ namespace CodexMachina
     _display.fill(0);
     _keys.fill(0);
     _I = 0;
+    _makeSound = false;
     _memory.fill(0);
     _pc = 0x200;
     _soundTimer = 0;
