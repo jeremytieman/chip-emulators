@@ -1,18 +1,47 @@
 #include <boost/program_options.hpp>
 #include <chip8.h>
+#include <chrono>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <string>
+#include <vector>
 
 namespace po = boost::program_options;
+
+auto loadBinaryFile(const std::string& filename)
+{
+  if (!std::filesystem::exists(filename))
+  {
+    std::string error{ filename };
+    error.append(" does not exist");
+    throw std::invalid_argument(error);
+  }
+
+  std::ifstream input("C:\\Final.gif", std::ios::binary);
+  std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
+  return buffer;
+
+}
 
 int main(int argc, char* argv[])
 {
   // Handle command line parameters
-  std::string machineName;
-  po::options_description desc("Allowed options");
+  std::string computerName;
+  std::string programFileName;
+  po::options_description desc{ "Allowed options" };
+  std::string chipDescr{
+    "computer name\n\n"
+    "Values:\n"
+    "  chip8: Chip-8 emulator\n"
+    "  schip8: SChip-8 emulator\n"
+    "  i8080: Intel 8080 emulator\n"
+  };
   desc.add_options()
     ("help,h", "produce help message")
-    ("machine,m", po::value<std::string>(&machineName)->required(), "machine name")
+    ("computer,c", po::value<std::string>(&computerName)->required(), chipDescr.c_str())
+    ("program,p", po::value<std::string>(&programFileName)->required(), "program file name")
     ;
 
   po::variables_map vm;
@@ -24,6 +53,26 @@ int main(int argc, char* argv[])
   }
 
   po::notify(vm);
+
+  if ("chip8" == computerName)
+  {
+    CodexMachina::Chip8 chip8;
+    auto buffer = loadBinaryFile(programFileName);
+    chip8.loadMemory(buffer, 0x200);
+  }
+  else if ("schip8" == computerName)
+  {
+
+  }
+  else if ("i8080" == computerName)
+  {
+
+  }
+  else
+  {
+    std::cout << desc << "\n";
+    return 0;
+  }
 
   return 0;
 }
