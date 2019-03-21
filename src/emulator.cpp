@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
 
@@ -59,6 +60,9 @@ int main(int argc, char* argv[])
     CodexMachina::Chip8 chip8;
     auto buffer = loadBinaryFile(programFileName);
     chip8.loadMemory(buffer, 0x200);
+    std::string windowTitle("CHIP8 - ");
+    windowTitle.append(programFileName);
+    sf::RenderWindow window(sf::VideoMode(chip8.getX(), chip8.getY()), windowTitle);
   }
   else if ("schip8" == computerName)
   {
