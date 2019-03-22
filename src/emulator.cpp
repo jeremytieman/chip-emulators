@@ -1,6 +1,7 @@
 #include <boost/program_options.hpp>
 #include <chip8.h>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -20,7 +21,7 @@ auto loadBinaryFile(const std::string& filename)
     throw std::invalid_argument(error);
   }
 
-  std::ifstream input("C:\\Final.gif", std::ios::binary);
+  std::ifstream input(filename, std::ios::binary);
   std::vector<unsigned char> buffer(std::istreambuf_iterator<char>(input), {});
   return buffer;
 
@@ -50,7 +51,7 @@ int main(int argc, char* argv[])
 
   if (vm.count("help") != 0) {
     std::cout << desc << "\n";
-    return 0;
+    return EXIT_SUCCESS;;
   }
 
   po::notify(vm);
@@ -62,7 +63,38 @@ int main(int argc, char* argv[])
     chip8.loadMemory(buffer, 0x200);
     std::string windowTitle("CHIP8 - ");
     windowTitle.append(programFileName);
-    sf::RenderWindow window(sf::VideoMode(chip8.getX(), chip8.getY()), windowTitle);
+    sf::RenderWindow window(sf::VideoMode(static_cast<unsigned int>(chip8.getX()), static_cast<unsigned int>(chip8.getY())), windowTitle);
+
+    while (window.isOpen())
+    {
+      sf::Event event;
+
+      while (window.pollEvent(event))
+      {
+        if (sf::Event::Closed == event.type) window.close();
+      }
+
+      window.clear();
+      chip8.emulateCycle();
+      sf::Image img;
+      img.create(static_cast<unsigned int>(chip8.getX()), static_cast<unsigned int>(chip8.getY()));
+      auto pixels = chip8.getDisplay();
+
+      for (size_t i = 0; i < chip8.getY(); ++i)
+      {
+        for (size_t j = 0; j < chip8.getX(); ++j)
+        {
+          auto pixel = pixels[(i * chip8.getX()) + j];
+          if (1 == pixel) img.setPixel(static_cast<unsigned int>(j), static_cast<unsigned int>(i), sf::Color::White);
+        }
+      }
+
+      sf::Texture tex;
+      tex.loadFromImage(img);
+      sf::Sprite sprite{ tex };
+      window.draw(sprite);
+      window.display();
+    }
   }
   else if ("schip8" == computerName)
   {
@@ -75,8 +107,8 @@ int main(int argc, char* argv[])
   else
   {
     std::cout << desc << "\n";
-    return 0;
+    return EXIT_SUCCESS;;
   }
 
-  return 0;
+  return EXIT_SUCCESS;
 }
