@@ -1,7 +1,7 @@
-#include <boost/program_options.hpp>
 #include <chip8.h>
 #include <chrono>
 #include <cstdlib>
+#include <cxxopts.hpp>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -9,8 +9,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <vector>
-
-namespace po = boost::program_options;
 
 auto loadBinaryFile(const std::string& filename)
 {
@@ -30,33 +28,44 @@ auto loadBinaryFile(const std::string& filename)
 int main(int argc, char* argv[])
 {
   // Handle command line parameters
-  std::string computerName;
+  std::string chipName;
   std::string programFileName;
-  po::options_description desc{ "Allowed options" };
+  cxxopts::Options options(argv[0], "Allowed options");
   std::string chipDescr{
-    "computer name\n\n"
     "Values:\n"
     "  chip8: Chip-8 emulator\n"
     "  schip8: SChip-8 emulator\n"
     "  i8080: Intel 8080 emulator\n"
   };
-  desc.add_options()
-    ("help,h", "produce help message")
-    ("computer,c", po::value<std::string>(&computerName)->required(), chipDescr.c_str())
-    ("program,p", po::value<std::string>(&programFileName)->required(), "program file name")
+  options.add_options()
+    ("h,help", "produce help message")
+    ("c,chip", "chip name", cxxopts::value<std::string>(chipName), chipDescr.c_str())
+    ("p,program",  "program file name", cxxopts::value<std::string>(programFileName))
     ;
 
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
+  auto result = options.parse(argc, argv);
 
-  if (vm.count("help") != 0) {
-    std::cout << desc << "\n";
-    return EXIT_SUCCESS;;
+  if (result.count("help"))
+  {
+    std::cout << options.help() << "\n";
+    return 0;
   }
 
-  po::notify(vm);
+  if (result.count("chip") == 0)
+  {
+    std::cerr << "Missing chip name\n";
+    std::cerr << options.help() << "\n";
+    return 0;
+  }
 
-  if ("chip8" == computerName)
+  if (result.count("program") == 0)
+  {
+    std::cerr << "Missing program file name\n";
+    std::cerr << options.help() << "\n";
+    return 0;
+  }
+
+  if ("chip8" == chipName)
   {
     CodexMachina::Chip8 chip8;
     auto buffer = loadBinaryFile(programFileName);
@@ -96,17 +105,17 @@ int main(int argc, char* argv[])
       window.display();
     }
   }
-  else if ("schip8" == computerName)
+  else if ("schip8" == chipName)
   {
 
   }
-  else if ("i8080" == computerName)
+  else if ("i8080" == chipName)
   {
 
   }
   else
   {
-    std::cout << desc << "\n";
+    std::cout << options.help() << "\n";
     return EXIT_SUCCESS;;
   }
 
