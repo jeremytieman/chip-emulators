@@ -9,7 +9,7 @@
 
 namespace CodexMachina
 {
-  class Chip8 : ChipEmulator
+  class Chip8 : public ChipEmulator
   {
   public:
     virtual void emulateCycle() override;
