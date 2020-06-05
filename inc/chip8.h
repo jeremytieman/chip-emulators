@@ -25,7 +25,8 @@ namespace CodexMachina
 
     virtual std::vector<unsigned char> getMemory() const override
     {
-      std::vector<unsigned char> out(_memory.size());
+      std::vector<unsigned char> out;
+      out.reserve(_memory.size());
       std::copy(_memory.begin(), _memory.end(), std::back_inserter(out));
       return out;
     }
