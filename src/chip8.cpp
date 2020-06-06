@@ -375,6 +375,7 @@ namespace CodexMachina
     _soundTimer = 0;
     _sp = 0;
     _stack.fill(0);
+    _timing = DEFAULT_TIMING;
     _V.fill(0);
     loadFont();
   }
