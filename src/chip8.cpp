@@ -224,6 +224,12 @@ namespace CodexMachina
     }
   }
 
+  virtual std::string getNextOpcodeDesc() const override
+  {
+    unsigned short opcode = _memory[_pc] << 8;
+    opcode |= _memory[_pc + 1];
+  }
+
   /*
   unsigned char chip8Fontset[80] =
   {
@@ -375,7 +381,8 @@ namespace CodexMachina
     _soundTimer = 0;
     _sp = 0;
     _stack.fill(0);
-    _timing = DEFAULT_TIMING;
+    _timingHertz = DEFAULT_TIMING_HERTZ;
+    _timing = 1.0 / _timingHertz;
     _V.fill(0);
     loadFont();
   }

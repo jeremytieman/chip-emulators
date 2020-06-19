@@ -14,7 +14,7 @@ namespace CodexMachina
   public:
     virtual void emulateCycle() override;
 
-    virtual double getDefaultTiming() const override { return DEFAULT_TIMING; }
+    virtual double getDefaultTimingHertz() const override { return DEFAULT_TIMING_HERTZ; }
 
     virtual std::vector<unsigned char> getDisplay() const override
     {
@@ -30,6 +30,8 @@ namespace CodexMachina
       std::copy(_memory.begin(), _memory.end(), std::back_inserter(out));
       return out;
     }
+
+    virtual std::string getNextOpcodeDesc() const override;
 
     virtual size_t getPC() const override { return _pc; }
     virtual std::initializer_list<const char*> getRegisterNames() const override { return REGISTER_NAMES; }
@@ -56,11 +58,16 @@ namespace CodexMachina
       return registers;
     }
 
-    virtual double getTiming() const override { return _timing; }
+    virtual double getTimingHertz() const override { return _timingHertz; }
     virtual bool hasRegisters() const override { return true; }
     virtual bool hasStack() const override { return true; }
     virtual void loadMemory(const std::vector<unsigned char> data, const size_t offset) override;
-    virtual void setTiming(const double timing) override { _timing = timing; }
+
+    virtual void setTimingHertz(const double timingHertz) override
+    {
+      _timingHertz = timingHertz;
+      _timing = 1.0 / _timingHertz;
+    }
     
     constexpr static auto getX() { return X; }
     constexpr static auto getY() { return Y; }
@@ -79,7 +86,7 @@ namespace CodexMachina
     void reset();
 
   private:
-    constexpr static double DEFAULT_TIMING{ 1.0 / 60.0 }; // 60 Hertz
+    constexpr static double DEFAULT_TIMING_HERTZ{ 60.0 };
     constexpr static size_t MEMORY_SIZE{ 0x1000 };
     constexpr static auto REGISTER_NAMES = { "V0",
       "V1", "V2", "V3", "V4", "V5", "V6", "V7",
@@ -101,6 +108,7 @@ namespace CodexMachina
     std::array<unsigned short, 16> _spriteAddrs;
     std::array<unsigned short, 16> _stack;
     double _timing;
+    double _timingHertz;
     std::array<unsigned char, 16> _V;
   };
 } // namespace CodexMachina
