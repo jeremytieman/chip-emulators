@@ -196,8 +196,8 @@ namespace CodexMachina
     }
     else if ((opcode & 0xF0FF) == 0xF029)
     {
-      const auto spriteIndex = (opcode & 0x0F00) >> 8;
-      _I = _spriteAddrs[spriteIndex];
+      const auto vIndex = (opcode & 0x0F00) >> 8;
+      _I = _spriteAddrs[_V[vIndex]];
     }
     else if ((opcode & 0xF0FF) == 0xF033)
     {
@@ -393,7 +393,7 @@ namespace CodexMachina
         std::dec << " starting at I";
     }
     else opcodeDesc << "Invalid opcode";
-    
+
     return opcodeDesc.str();
   }
 
