@@ -17,6 +17,7 @@ namespace CodexMachina
       virtual double getDefaultTimingHertz() const = 0;
       virtual std::vector<unsigned char> getDisplay() const = 0;
       virtual std::vector<unsigned char> getMemory() const = 0;
+      virtual std::string getNextOpcode() const = 0;
       virtual std::string getNextOpcodeDesc() const = 0;
       virtual size_t getPC() const = 0;
       virtual std::initializer_list<const char*> getRegisterNames() const = 0;

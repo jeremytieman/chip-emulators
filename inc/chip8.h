@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <array>
 #include "emulator.h"
+#include <iomanip>
 #include <iterator>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 namespace CodexMachina
@@ -29,6 +32,15 @@ namespace CodexMachina
       out.reserve(_memory.size());
       std::copy(_memory.begin(), _memory.end(), std::back_inserter(out));
       return out;
+    }
+
+    virtual std::string getNextOpcode() const override
+    {
+      unsigned short opcode = _memory[_pc] << 8;
+      opcode |= _memory[_pc + 1];
+      std::ostringstream opcodeSS;
+      opcodeSS << "0x" << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << opcode;
+      return opcodeSS.str();
     }
 
     virtual std::string getNextOpcodeDesc() const override;
