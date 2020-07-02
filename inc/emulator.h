@@ -16,6 +16,7 @@ namespace CodexMachina
 
       virtual double getDefaultTimingHertz() const = 0;
       virtual std::vector<unsigned char> getDisplay() const = 0;
+      virtual unsigned short getI() const = 0;
       virtual std::vector<unsigned char> getMemory() const = 0;
       virtual std::string getNextOpcode() const = 0;
       virtual std::string getNextOpcodeDesc() const = 0;

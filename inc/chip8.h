@@ -26,6 +26,8 @@ namespace CodexMachina
       return out;
     }
 
+    virtual unsigned short getI() const override { return _I; }
+
     virtual std::vector<unsigned char> getMemory() const override
     {
       std::vector<unsigned char> out;

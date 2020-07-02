@@ -239,7 +239,7 @@ namespace CodexMachina
     opcode |= _memory[_pc + 1];
     std::ostringstream opcodeDesc;
 
-    if (opcode == 0x00E0) opcodeDesc << " Clear screen";
+    if (opcode == 0x00E0) opcodeDesc << "Clear screen";
     else if (opcode == 0x00EE) opcodeDesc << "Return";
     else if ((opcode & 0xF000) == 0x0000) {
       opcodeDesc << "Call RCA 1802 program at: 0x" << std::uppercase << std::setfill('0') <<
@@ -251,76 +251,149 @@ namespace CodexMachina
       opcodeDesc << "Call subroutine at address: 0x" << std::uppercase << std::setfill('0') << std::setw(3) << std::hex << (opcode & 0xFFF);
     else if ((opcode & 0xF000) == 0x3000)
     {
-      opcodeDesc << "if(V" << ((opcode & 0xF00) >> 2) << " == 0x" <<
+      opcodeDesc << "if(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec << " == 0x" <<
          std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xFF) << ")";
     }
     else if ((opcode & 0xF000) == 0x4000)
     {
-      opcodeDesc << "if(V" << ((opcode & 0xF00) >> 2) << " != 0x" <<
+      opcodeDesc << "if(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec << " != 0x" <<
          std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xFF) << ")";
     }
     else if ((opcode & 0xF00F) == 0x5000)
-      opcodeDesc << "if(V" << ((opcode & 0xF00) >> 2) << " == V" << ((opcode & 0xF0) >> 1) << ")";
+    {
+      opcodeDesc << "if(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec << " == V" <<
+        std::uppercase << std::hex << ((opcode & 0xF0) >> 4) << ")";
+    }
     else if ((opcode & 0xF000) == 0x6000)
     {
-      opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " = 0x" <<
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0x0F00) >> 8) << std::nouppercase << std::dec << " = 0x" <<
         std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xFF);
     }
     else if ((opcode & 0xF000) == 0x7000)
     {
-      opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " += 0x" << std::uppercase << std::setfill('0')
-        << std::setw(2) << std::hex << (opcode & 0xFF);
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec << " += 0x" <<
+        std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xFF);
     }
-    else if ((opcode & 0xF00F) == 0x8000) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " = V" << ((opcode & 0xF0) >> 1);
+    else if ((opcode & 0xF00F) == 0x8000)
+    {
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec << " = V" <<
+        std::uppercase << std::hex << ((opcode & 0xF0) >> 4);
+    }
     else if ((opcode & 0xF00F) == 0x8001)
     {
-      const auto x = ((opcode & 0xF00) >> 2);
-      opcodeDesc << "V" << x << " = V" << x << " | V" << ((opcode & 0xF0) >> 1);
+      const auto x = ((opcode & 0xF00) >> 8);
+      opcodeDesc << "V" << std::uppercase << std::hex << x << std::nouppercase << std::dec << " = V" <<
+        std::uppercase << std::hex << x << std::nouppercase << std::dec << " | V" << std::uppercase << std::hex <<
+        ((opcode & 0xF0) >> 4);
     }
     else if ((opcode & 0xF00F) == 0x8002)
     {
-      const auto x = ((opcode & 0xF00) >> 2);
-      opcodeDesc << "V" << x << " = V" << x << " & V" << ((opcode & 0xF0) >> 1);
+      const auto x = ((opcode & 0xF00) >> 8);
+      opcodeDesc << "V" << std::uppercase << std::hex << x << std::nouppercase << std::dec << " = V" <<
+        std::uppercase << std::hex << x << std::nouppercase << std::dec << " & V" << std::uppercase << std::hex <<
+        ((opcode & 0xF0) >> 4);
     }
     else if ((opcode & 0xF00F) == 0x8003)
     {
-      const auto x = ((opcode & 0xF00) >> 2);
-      opcodeDesc << "V" << x << " = V" << x << " ^ V" << ((opcode & 0xF0) >> 1);
+      const auto x = ((opcode & 0xF00) >> 8);
+      opcodeDesc << "V" << std::uppercase << std::hex << x << std::nouppercase << std::dec << " = V" <<
+        std::uppercase << std::hex << x << std::nouppercase << std::dec << " ^ V" << std::uppercase << std::hex <<
+        ((opcode & 0xF0) >> 4);
     }
-    else if ((opcode & 0xF00F) == 0x8004) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " += V" << ((opcode & 0xF0) >> 1);
-    else if ((opcode & 0xF00F) == 0x8005) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " -= V" << ((opcode & 0xF0) >> 1);
-    else if ((opcode & 0xF00F) == 0x8006) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " >>= 1";
+    else if ((opcode & 0xF00F) == 0x8004)
+    {
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        " += V" << std::uppercase << std::hex << ((opcode & 0xF0) >> 4);
+    }
+    else if ((opcode & 0xF00F) == 0x8005)
+    {
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        " -= V" << std::uppercase << std::hex << ((opcode & 0xF0) >> 4);
+    }
+    else if ((opcode & 0xF00F) == 0x8006)
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec << " >>= 1";
     else if ((opcode & 0xF00F) == 0x8007)
     {
-      const auto x = ((opcode & 0xF00) >> 2);
-      opcodeDesc << "V" << x << " = V" << ((opcode & 0xF0) >> 1) << " - V" << x;
+      const auto x = ((opcode & 0xF00) >> 8);
+      opcodeDesc << "V" << std::uppercase << std::hex << x << std::nouppercase << std::dec << " = V" << std::uppercase <<
+        std::hex << ((opcode & 0xF0) >> 4) << std::nouppercase << std::dec << " - V" << std::uppercase << std::hex << x;
     }
-    else if ((opcode & 0xF00F) == 0x800E) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " <<= 1";
+    else if ((opcode & 0xF00F) == 0x800E)
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<  " <<= 1";
     else if ((opcode & 0xF00F) == 0x9000)
-      opcodeDesc << "if(V" << ((opcode & 0xF00) >> 2) << " != V" << ((opcode & 0xF0) >> 1) << ")";
+    {
+      opcodeDesc << "if(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        " != V" << std::uppercase << std::hex << ((opcode & 0xF0) >> 4) << std::nouppercase << std::dec << ")";
+    }
     else if ((opcode & 0xF000) == 0xA000)
       opcodeDesc << "I = 0x" << std::uppercase << std::setfill('0') << std::setw(3) << std::hex << (opcode & 0xFFF);
     else if ((opcode & 0xF000) == 0xB000)
       opcodeDesc << "PC = V0 + 0x" << std::uppercase << std::setfill('0') << std::setw(3) << std::hex << (opcode & 0xFFF);
     else if ((opcode & 0xF000) == 0xC000)
     {
-      opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " = rand() & 0x"  << std::uppercase << std::setfill('0') <<
-        std::setw(2) << std::hex << (opcode & 0xFF);
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        " = rand() & 0x"  << std::uppercase << std::setfill('0') << std::setw(2) << std::hex << (opcode & 0xFF);
     }
     else if ((opcode & 0xF000) == 0xD000)
-      opcodeDesc << "draw(V" << ((opcode & 0xF00) >> 2) << ", V" << ((opcode & 0xF0) >> 1) << ", " << (opcode & 0xF) << ")";
-    else if ((opcode & 0xF0FF) == 0xE09E) opcodeDesc << "if(key() == V" << ((opcode & 0xF00) >> 2) << ")";
-    else if ((opcode & 0xF0FF) == 0xE0A1) opcodeDesc << "if(key() != V" << ((opcode & 0xF00) >> 2) << ")";
-    else if ((opcode & 0xF0FF) == 0xF007) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " = getDelay()";
-    else if ((opcode & 0xF0FF) == 0xF00A) opcodeDesc << "V" << ((opcode & 0xF00) >> 2) << " = getKey()";
-    else if ((opcode & 0xF0FF) == 0xF015) opcodeDesc << "setDelayTimer(V" << ((opcode & 0xF00) >> 2) << ")";
-    else if ((opcode & 0xF0FF) == 0xF018) opcodeDesc << "setSoundTimer(V" << ((opcode & 0xF00) >> 2) << ")";
-    else if ((opcode & 0xF0FF) == 0xF01E) opcodeDesc << "I += V" << ((opcode & 0xF00) >> 2);
-    else if ((opcode & 0xF0FF) == 0xF029) opcodeDesc << "I = spriteAddr[V" << ((opcode & 0xF00) >> 2) << "]";
-    else if ((opcode & 0xF0FF) == 0xF033) opcodeDesc << "I[0..2] = BinaryCodedDecimal(V" << ((opcode & 0xF00) >> 2) << ")";
-    else if ((opcode & 0xF0FF) == 0xF055) opcodeDesc << "Store V0 to V" << ((opcode & 0xF00) >> 2) << " starting at I";
-    else if ((opcode & 0xF0FF) == 0xF065) opcodeDesc << "Load V0 to V" << ((opcode & 0xF00) >> 2) << " starting at I";
+    {
+      opcodeDesc << "draw(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        ", V" << std::uppercase << std::hex << ((opcode & 0xF0) >> 4) << std::nouppercase << std::dec << ", " <<
+        std::uppercase << std::hex << (opcode & 0xF) << std::nouppercase << std::dec << ")";
+    }
+    else if ((opcode & 0xF0FF) == 0xE09E)
+    {
+      opcodeDesc << "if(key() == V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase <<
+        std::dec << ")";
+    }
+    else if ((opcode & 0xF0FF) == 0xE0A1)
+    {
+      opcodeDesc << "if(key() != V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase <<
+        std::dec << ")";
+    }
+    else if ((opcode & 0xF0FF) == 0xF007)
+    {
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        " = getDelay()";
+    }
+    else if ((opcode & 0xF0FF) == 0xF00A)
+    {
+      opcodeDesc << "V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase << std::dec <<
+        " = getKey()";
+    }
+    else if ((opcode & 0xF0FF) == 0xF015)
+    {
+      opcodeDesc << "setDelayTimer(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase <<
+        std::dec << ")";
+    }
+    else if ((opcode & 0xF0FF) == 0xF018)
+    {
+      opcodeDesc << "setSoundTimer(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase <<
+        std::dec << ")";
+    }
+    else if ((opcode & 0xF0FF) == 0xF01E)
+      opcodeDesc << "I += V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8);
+    else if ((opcode & 0xF0FF) == 0xF029)
+    {
+      opcodeDesc << "I = spriteAddr[V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) <<
+        std::nouppercase << std::dec << "]";
+    }
+    else if ((opcode & 0xF0FF) == 0xF033)
+    {
+      opcodeDesc << "I[0..2] = BinaryCodedDecimal(V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) <<
+        std::nouppercase << std::dec << ")";
+    }
+    else if ((opcode & 0xF0FF) == 0xF055)
+    {
+      opcodeDesc << "Store V0 to V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase <<
+        std::dec << " starting at I";
+    }
+    else if ((opcode & 0xF0FF) == 0xF065)
+    {
+      opcodeDesc << "Load V0 to V" << std::uppercase << std::hex << ((opcode & 0xF00) >> 8) << std::nouppercase <<
+        std::dec << " starting at I";
+    }
     else opcodeDesc << "Invalid opcode";
+    
     return opcodeDesc.str();
   }
 
