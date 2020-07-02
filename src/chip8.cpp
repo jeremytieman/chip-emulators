@@ -11,7 +11,16 @@ namespace CodexMachina
     unsigned short opcode = _memory[_pc++] << 8;
     opcode |= _memory[_pc++];
 
-    if ((opcode & 0xF000) == 0x0000)
+    if (opcode == 0x00E0)
+    {
+      _display.fill(0);
+    }
+    else if (opcode == 0x00EE)
+    {
+      if (0 == _sp) { throw std::logic_error{ "The stack is empty." }; }
+      _pc = _stack[_sp--];
+    }
+    else if ((opcode & 0xF000) == 0x0000)
     {
       // Calls RCA 1802 program at address (opcode & 0x0FFF)
       // Intentionally ignored
@@ -230,12 +239,12 @@ namespace CodexMachina
     opcode |= _memory[_pc + 1];
     std::ostringstream opcodeDesc;
 
-    if ((opcode & 0xF000) == 0x0000) {
+    if (opcode == 0x00E0) opcodeDesc << " Clear screen";
+    else if (opcode == 0x00EE) opcodeDesc << "Return";
+    else if ((opcode & 0xF000) == 0x0000) {
       opcodeDesc << "Call RCA 1802 program at: 0x" << std::uppercase << std::setfill('0') <<
         std::setw(4) << std::hex << (opcode & 0x0FFF) << " - IGNORED";
     }
-    else if (opcode == 0x00E0) opcodeDesc << " Clear screen";
-    else if (opcode == 0x00EE) opcodeDesc << "Return";
     else if ((opcode & 0xF000) == 0x1000)
       opcodeDesc << "Jump to address: 0x" << std::uppercase << std::setfill('0') << std::setw(3) << std::hex << (opcode & 0xFFF);
     else if ((opcode & 0xF000) == 0x2000)
