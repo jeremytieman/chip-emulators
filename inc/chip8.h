@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace CodexMachina
@@ -24,6 +25,11 @@ namespace CodexMachina
       std::vector<unsigned char> out(_display.size());
       std::copy(_display.begin(), _display.end(), std::back_inserter(out));
       return out;
+    }
+
+    virtual std::tuple<size_t, size_t> getDisplaySize() const override
+    {
+      return std::make_tuple(X, Y);
     }
 
     virtual unsigned short getI() const override { return _I; }

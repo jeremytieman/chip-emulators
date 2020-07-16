@@ -1,6 +1,7 @@
 #pragma once
 
 #include <initializer_list>
+#include <tuple>
 #include <unordered_map>
 #include <vector>
 
@@ -16,6 +17,7 @@ namespace CodexMachina
 
       virtual double getDefaultTimingHertz() const = 0;
       virtual std::vector<unsigned char> getDisplay() const = 0;
+      virtual std::tuple<size_t, size_t> getDisplaySize() const = 0;
       virtual unsigned short getI() const = 0;
       virtual std::vector<unsigned char> getMemory() const = 0;
       virtual std::string getNextOpcode() const = 0;

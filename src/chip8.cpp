@@ -146,11 +146,13 @@ namespace CodexMachina
           const auto displayXIndex = (vx + j) % X;
           const auto displayYIndex = ((vy + n) % Y) * X;
           const auto currentValue = _display[displayXIndex + displayYIndex];
-          const auto newValue = currentValue % bit;
-          if (currentValue != newValue) { newVF = 0x01; }
+          const auto newValue = currentValue ^ bit;
+          if ((currentValue == 1) && (newValue == 0)) newVF = 0x01;
           _display[displayXIndex + displayYIndex] = newValue;
         }
       }
+
+      _V[0x0F] = newVF;
     }
     else if ((opcode & 0xF0FF) == 0xE09E)
     {
