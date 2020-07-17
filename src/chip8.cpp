@@ -125,31 +125,31 @@ namespace CodexMachina
     {
       unsigned char newVF = 0x0;
       const auto vx = _V[(opcode & 0x0F00) >> 8];
-      std::cout << "vx: " << vx << "\n";
+      std::cout << "vx: 0x" << std::uppercase << std::hex << vx << std::nouppercase << std::dec << "\n";
       const auto vy = _V[(opcode & 0x00F0) >> 4];
-      std::cout << "vy: " << vy << "\n";
+      std::cout << "vy: 0x" << std::uppercase << std::hex << vy << std::nouppercase << std::dec << "\n";
       const unsigned char n = (opcode & 0x000F);
-      std::cout << "n: " << n << "\n";
+      std::cout << "n: 0x" << std::uppercase << std::hex << n << std::nouppercase << std::dec << "\n";
 
       for (unsigned char i = 0; i < n; ++i)
       {
         const auto byte = _memory[_I + i];
-        std::cout << "byte: " << byte << "\n";
+        std::cout << "byte: ox"  << std::uppercase << std::hex << byte << std::nouppercase << std::dec << "\n";
 
         for (int j = 0; j < 8; ++j)
         {
           const auto bit = static_cast<unsigned char>((byte >> (7 - j)) & 0x01);
-          std::cout << "bit: " << bit << "\n";
+          std::cout << "bit: 0x"  << std::uppercase << std::hex << bit << std::nouppercase << std::dec << "\n";
           const auto displayXIndex = (vx + j) % X;
-          std::cout << "displayXIndex: " << displayXIndex << "\n";
+          std::cout << "displayXIndex: 0x"  << std::uppercase << std::hex << displayXIndex << std::nouppercase << std::dec << "\n";
           const auto displayYIndex = ((vy + i) % Y) * X;
-          std::cout << "displayYIndex: " << displayYIndex << "\n";
+          std::cout << "displayYIndex: 0x"  << std::uppercase << std::hex << displayYIndex << std::nouppercase << std::dec << "\n";
           const auto currentValue = _display[displayXIndex + displayYIndex];
-          std::cout << "currentValue: " << currentValue << "\n";
+          std::cout << "currentValue: 0x"  << std::uppercase << std::hex << currentValue << std::nouppercase << std::dec << "\n";
           const auto newValue = currentValue ^ bit;
-          std::cout << "newValue: " << newValue << "\n";
+          std::cout << "newValue: 0x"  << std::uppercase << std::hex << newValue << std::nouppercase << std::dec << "\n";
           if ((currentValue == 1) && (newValue == 0)) newVF = 0x01;
-          std::cout << "newVF: " << newVF << "\n";
+          std::cout << "newVF: 0x"  << std::uppercase << std::hex << newVF << std::nouppercase << std::dec << "\n";
           _display[displayXIndex + displayYIndex] = newValue;
         }
       }
