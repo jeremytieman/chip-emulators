@@ -135,7 +135,7 @@ namespace CodexMachina
         {
           const auto bit = static_cast<unsigned char>((byte >> (7 - j)) & 0x01);
           const auto displayXIndex = (vx + j) % X;
-          const auto displayYIndex = ((vy + n) % Y) * X;
+          const auto displayYIndex = ((vy + i) % Y) * X;
           const auto currentValue = _display[displayXIndex + displayYIndex];
           const auto newValue = currentValue ^ bit;
           if ((currentValue == 1) && (newValue == 0)) newVF = 0x01;
