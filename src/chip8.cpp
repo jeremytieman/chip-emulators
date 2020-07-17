@@ -18,21 +18,12 @@ namespace CodexMachina
     else if (opcode == 0x00EE)
     {
       if (0 == _sp) { throw std::logic_error{ "The stack is empty." }; }
-      _pc = _stack[_sp--];
+      _pc = _stack[--_sp];
     }
     else if ((opcode & 0xF000) == 0x0000)
     {
       // Calls RCA 1802 program at address (opcode & 0x0FFF)
       // Intentionally ignored
-    }
-    else if (opcode == 0x00E0)
-    {
-      _display.fill(0);
-    }
-    else if (opcode == 0x00EE)
-    {
-      if (0 == _sp) { throw std::logic_error{ "The stack is empty." }; }
-      _pc = _stack[_sp--];
     }
     else if ((opcode & 0xF000) == 0x1000)
     {
