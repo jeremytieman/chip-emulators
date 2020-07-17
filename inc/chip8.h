@@ -22,7 +22,8 @@ namespace CodexMachina
 
     virtual std::vector<unsigned char> getDisplay() const override
     {
-      std::vector<unsigned char> out(_display.size());
+      std::vector<unsigned char> out;
+      out.reserve(_display.size());
       std::copy(_display.begin(), _display.end(), std::back_inserter(out));
       return out;
     }
