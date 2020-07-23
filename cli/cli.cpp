@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 
   if ("chip8" == chipName)
   {
-    CodexMachina::Chip8 chip8;
+    CodexMachina::Chip8::Chip8 chip8;
     auto buffer = loadBinaryFile(programFileName);
     chip8.loadMemory(buffer, 0x200);
     std::string windowTitle("CHIP8 - ");

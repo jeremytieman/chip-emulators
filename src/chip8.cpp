@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace CodexMachina
+namespace CodexMachina::Chip8
 {
   void Chip8::emulateCycle()
   {
@@ -512,7 +512,7 @@ namespace CodexMachina
     _memory[offset + 79] = 0x80;
   }
 
-  void Chip8::loadMemory(const std::vector<unsigned char> data, const size_t offset)
+  void Chip8::loadMemory(const std::vector<unsigned char>& data, const size_t offset)
   {
     if (offset > MEMORY_SIZE)
     {

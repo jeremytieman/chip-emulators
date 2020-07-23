@@ -11,7 +11,7 @@
 #include <tuple>
 #include <vector>
 
-namespace CodexMachina
+namespace CodexMachina::Chip8
 {
   class Chip8 : public ChipEmulator
   {
@@ -79,10 +79,19 @@ namespace CodexMachina
       return registers;
     }
 
+    virtual std::vector<unsigned long long> getStack() const override
+    {
+      std::vector<unsigned long long> out;
+      out.reserve(STACK_SIZE);
+      std::copy(_stack.begin(), _stack.end(), std::back_inserter(out));
+      return out;
+    }
+
+    virtual size_t getStackSize() const override { return STACK_SIZE; }
     virtual double getTimingHertz() const override { return _timingHertz; }
     virtual bool hasRegisters() const override { return true; }
     virtual bool hasStack() const override { return true; }
-    virtual void loadMemory(const std::vector<unsigned char> data, const size_t offset) override;
+    virtual void loadMemory(const std::vector<unsigned char>&, const size_t) override;
 
     virtual void setTimingHertz(const double timingHertz) override
     {
@@ -109,10 +118,12 @@ namespace CodexMachina
   private:
     constexpr static double DEFAULT_TIMING_HERTZ{ 60.0 };
     constexpr static size_t MEMORY_SIZE{ 0x1000 };
+    constexpr static size_t NUM_REGISTERS{ 16 };
     constexpr static auto REGISTER_NAMES = { "V0",
       "V1", "V2", "V3", "V4", "V5", "V6", "V7",
       "V8", "V9", "VA", "VB", "VC", "VD", "VE",
       "VF" };
+    constexpr static size_t STACK_SIZE{ 16 };
     constexpr static size_t X{ 64 };
     constexpr static size_t Y{ 32 };
 
@@ -127,9 +138,9 @@ namespace CodexMachina
     unsigned char _soundTimer;
     unsigned char _sp;
     std::array<unsigned short, 16> _spriteAddrs;
-    std::array<unsigned short, 16> _stack;
+    std::array<unsigned short, STACK_SIZE> _stack;
     double _timing;
     double _timingHertz;
-    std::array<unsigned char, 16> _V;
+    std::array<unsigned char, NUM_REGISTERS> _V;
   };
 } // namespace CodexMachina
